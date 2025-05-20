@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/stretchr/testify/require"
 	"github.com/yyle88/must"
+	"github.com/yyle88/neatjson/neatjsonm"
 	"github.com/yyle88/neatjson/neatjsons"
 	"github.com/yyle88/rese"
 )
@@ -17,7 +18,7 @@ func TestNewJsonSource(t *testing.T) {
 		Nickname string `json:"nickname"`
 	}
 
-	jsonSource := NewJsonSource(neatjsons.B(&Account{
+	jsonSource := NewJsonSource(neatjsonm.B(&Account{
 		Username: "abc",
 		Nickname: "123",
 	}))
@@ -72,7 +73,7 @@ func TestNewJsonSource_Update(t *testing.T) {
 		Auth AuthConfig `json:"auth"`
 	}
 
-	jsonSource := NewJsonSource(neatjsons.B(&ServerConfig{
+	jsonSource := NewJsonSource(neatjsonm.B(&ServerConfig{
 		AppName: "my-app",
 		Version: "1.0.0",
 		Database: DatabaseConfig{
@@ -122,7 +123,7 @@ func TestNewJsonSource_Update(t *testing.T) {
 
 	{ // 比较结果
 		res := ServerConfig{}
-		must.Done(c.Scan(&res)) //只有重新 Scan 这里才能拿到数据，根据前面的 Watch 观察到键的变动时就执行 Scan 也行，但无论如何都得手动调用 Scan 函数
+		must.Done(c.Scan(&res))
 		t.Log("config:", neatjsons.S(res))
 		require.Equal(t, "my-app", res.AppName)
 		require.Equal(t, "1.0.0", res.Version)
@@ -135,14 +136,14 @@ func TestNewJsonSource_Update(t *testing.T) {
 		require.Equal(t, 30, res.Auth.Timeout)
 	}
 
-	must.Done(jsonSource.Update(neatjsons.B(&ConfigPortV2{
+	must.Done(jsonSource.Update(neatjsonm.B(&ConfigPortV2{
 		Port: 8081,
 	})))
 	time.Sleep(time.Millisecond * 100)
 
 	{ // 比较结果
 		res := ServerConfig{}
-		must.Done(c.Scan(&res))
+		must.Done(c.Scan(&res)) //只有重新 Scan 这里才能拿到新数据，根据前面的 Watch 观察到键的变动时就执行 Scan 也行，但无论如何都得手动调用 Scan 函数
 		t.Log("config:", neatjsons.S(res))
 		require.Equal(t, "my-app", res.AppName)
 		require.Equal(t, "1.0.0", res.Version)
@@ -155,7 +156,7 @@ func TestNewJsonSource_Update(t *testing.T) {
 		require.Equal(t, 30, res.Auth.Timeout)
 	}
 
-	must.Done(jsonSource.Update(neatjsons.B(&ConfigDatabaseV2{
+	must.Done(jsonSource.Update(neatjsonm.B(&ConfigDatabaseV2{
 		Database: DatabaseConfig{
 			Host:     "127.0.0.1",
 			Port:     3307,
@@ -167,7 +168,7 @@ func TestNewJsonSource_Update(t *testing.T) {
 
 	{ // 比较结果
 		res := ServerConfig{}
-		must.Done(c.Scan(&res))
+		must.Done(c.Scan(&res)) //只有重新 Scan 这里才能拿到新数据
 		t.Log("config:", neatjsons.S(res))
 		require.Equal(t, "my-app", res.AppName)
 		require.Equal(t, "1.0.0", res.Version)
@@ -180,7 +181,7 @@ func TestNewJsonSource_Update(t *testing.T) {
 		require.Equal(t, 30, res.Auth.Timeout)
 	}
 
-	must.Done(jsonSource.Update(neatjsons.B(&ConfigAuthV2{
+	must.Done(jsonSource.Update(neatjsonm.B(&ConfigAuthV2{
 		Auth: AuthConfig{
 			APIKey:  "uvw",
 			Timeout: 36000,
@@ -190,7 +191,7 @@ func TestNewJsonSource_Update(t *testing.T) {
 
 	{ // 比较结果
 		res := ServerConfig{}
-		must.Done(c.Scan(&res))
+		must.Done(c.Scan(&res)) //只有重新 Scan 这里才能拿到新数据
 		t.Log("config:", neatjsons.S(res))
 		require.Equal(t, "my-app", res.AppName)
 		require.Equal(t, "1.0.0", res.Version)

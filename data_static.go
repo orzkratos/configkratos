@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/config"
+	"github.com/yyle88/erero"
 	"github.com/yyle88/must"
 )
 
@@ -41,7 +42,7 @@ func (p *DataStatic) Load() ([]*config.KeyValue, error) {
 func (p *DataStatic) Watch() (config.Watcher, error) {
 	w, err := NewStaticWatcher()
 	if err != nil {
-		return nil, err
+		return nil, erero.Wro(err)
 	}
 	return w, nil
 }
